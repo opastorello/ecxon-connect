@@ -82,12 +82,12 @@ async function checkForUpdate(currentVersion) {
     const link = $("update-link");
     link.textContent = `↻ Nova versão v${latest} disponível`;
     link.hidden = false;
-    link.addEventListener("click", async (e) => {
-      e.preventDefault();
+    link.addEventListener("click", async () => {
       try {
         await invoke("plugin:opener|open_url", { url: `${SITE_URL}/diagnostic` });
       } catch (err) {
         console.error("abrir /diagnostic falhou:", err);
+        link.textContent = `↻ Falha ao abrir — copie: ${SITE_URL}/diagnostic`;
       }
     });
   } catch { /* offline ou rate limit — silencioso */ }
@@ -119,14 +119,6 @@ async function init() {
   await refreshAutostart();
 
   $("autostart-toggle").addEventListener("change", onAutostartChange);
-
-  $("btn-site").addEventListener("click", async () => {
-    try {
-      await invoke("plugin:opener|open_url", { url: SITE_URL });
-    } catch (err) {
-      console.error(err);
-    }
-  });
 
   // Eventos do Rust pra status
   await listen("server-status", (evt) => {
