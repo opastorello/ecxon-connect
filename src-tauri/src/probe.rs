@@ -46,15 +46,21 @@ pub async fn probe_tcp(host: &str, port: u16, timeout_ms: Option<u64>) -> ProbeR
 }
 
 /// UDP probe — envia 1 byte e aguarda resposta ou ICMP unreachable.
-/// Mesma heurística do agente Go:
-///   - resposta recebida: porta aberta (ok)
-///   - timeout no read (1s): provavelmente aberto, sem ICMP refused (ok conservador)
-///   - ConnectionRefused: ICMP port unreachable = porta fechada (fail)
+/// Latência só é reportada quando há sinal real (resposta do peer ou ICMP
+/// refused). "ok por timeout" retorna `latency_ms = None` porque não houve
+/// medição — antes vinha o read timeout (~250ms) como se fosse latência,
+/// enganoso.
+///
+/// Heurística:
+///   - resposta recebida: porta aberta (ok, latência real send→recv)
+///   - timeout no read (default 250ms): sem ICMP refused = porta provavelmente
+///     aberta (ok conservador, sem latência)
+///   - ConnectionRefused: ICMP port unreachable = porta fechada (fail, latência
+///     real até o SO entregar o erro)
 pub async fn probe_udp(host: &str, port: u16, timeout_ms: Option<u64>) -> ProbeResponse {
     let addr = format!("{host}:{port}");
-    let start = Instant::now();
     let read_to = clamp_timeout(timeout_ms, DEFAULT_UDP_TIMEOUT_MS);
-    // Write timeout = max(read, 500ms) — algum delay aceitável pra send.
+    // Send é quase sempre não-bloqueante; damos pelo menos 500ms de folga.
     let write_to = std::cmp::max(read_to, Duration::from_millis(500));
 
     // Bind local efêmero. v4 + fallback v6.
@@ -80,73 +86,75 @@ pub async fn probe_udp(host: &str, port: u16, timeout_ms: Option<u64>) -> ProbeR
         };
     }
 
-    // Envia 1 byte (com timeout de 2s).
+    // Mede só o RTT do send→recv. Bind/connect têm overhead irrelevante (~µs)
+    // e conceitualmente não fazem parte da latência da porta remota.
+    let start = Instant::now();
+
     match timeout(write_to, socket.send(&[0u8])).await {
         Ok(Ok(_)) => {}
         Ok(Err(e)) => {
             return ProbeResponse {
                 ok: false,
-                latency_ms: Some(start.elapsed().as_millis() as u64),
+                latency_ms: None,
                 error: Some(e.to_string()),
             };
         }
         Err(_) => {
             return ProbeResponse {
                 ok: false,
-                latency_ms: Some(start.elapsed().as_millis() as u64),
+                latency_ms: None,
                 error: Some("write timeout".into()),
             };
         }
     }
 
-    // Recebe (timeout 1s).
     let mut buf = [0u8; 1];
     match timeout(read_to, socket.recv(&mut buf)).await {
+        // Resposta real do peer = latência líquida medida.
         Ok(Ok(_)) => ProbeResponse {
             ok: true,
             latency_ms: Some(start.elapsed().as_millis() as u64),
             error: None,
         },
         Ok(Err(e)) => {
-            // ConnectionRefused = ICMP port unreachable = porta fechada.
             let kind = e.kind();
             let s = e.to_string().to_lowercase();
-            let latency = start.elapsed().as_millis() as u64;
             if kind == ErrorKind::ConnectionRefused
                 || s.contains("connection refused")
                 || s.contains("port unreachable")
                 || s.contains("network unreachable")
                 || s.contains("host unreachable")
             {
+                // ICMP refused = latência real até o SO entregar o erro.
                 ProbeResponse {
                     ok: false,
-                    latency_ms: Some(latency),
+                    latency_ms: Some(start.elapsed().as_millis() as u64),
                     error: Some(e.to_string()),
                 }
             } else if kind == ErrorKind::TimedOut
                 || s.contains("timed out")
                 || s.contains("timeout")
             {
-                // Sem ICMP refused dentro da janela = porta provavelmente aberta.
+                // Timeout do SO sem ICMP refused = ok conservador, sem latência.
                 ProbeResponse {
                     ok: true,
-                    latency_ms: Some(latency),
+                    latency_ms: None,
                     error: None,
                 }
             } else {
                 ProbeResponse {
                     ok: false,
-                    latency_ms: Some(latency),
+                    latency_ms: None,
                     error: Some(e.to_string()),
                 }
             }
         }
         Err(_) => {
-            // Tokio elapsed = read timeout limpo, sem erro do SO. Equivalente a
-            // i/o timeout do Go, e indica ausência de ICMP refused = ok.
+            // Read timeout limpo do tokio (= timeout do SO sem refused):
+            // ok conservador, sem latência real.
             ProbeResponse {
                 ok: true,
-                latency_ms: Some(start.elapsed().as_millis() as u64),
+                latency_ms: None,
                 error: None,
             }
         }
