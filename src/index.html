@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ecxon Connect</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header data-tauri-drag-region class="titlebar">
+      <div class="brand" data-tauri-drag-region>
+        <img src="logo.png" alt="Ecxon" class="brand-logo" data-tauri-drag-region />
+        <span class="brand-suffix" data-tauri-drag-region>Connect</span>
+      </div>
+      <div class="window-controls">
+        <button id="btn-min" class="win-btn" title="Minimizar">&minus;</button>
+        <button id="btn-hide" class="win-btn" title="Esconder na bandeja">&times;</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="status-card" id="status-card">
+        <div class="status-row">
+          <span class="status-dot" id="status-dot"></span>
+          <div class="status-text">
+            <div class="status-title" id="status-title">Verificando&hellip;</div>
+            <div class="status-sub" id="status-sub">127.0.0.1:5556</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <span>Iniciar com Windows</span>
+          <label class="switch">
+            <input type="checkbox" id="autostart-toggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <p class="hint" id="autostart-hint">Carrega o agente automaticamente no login.</p>
+      </section>
+
+      <button id="btn-site" class="primary-btn">Abrir site Ecxon</button>
+      <p class="footer-version" id="footer-version">v1.0.0</p>
+    </main>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,268 @@
+:root {
+  --bg: #222222;
+  --bg-elev: #2a2a2a;
+  --bg-elev-2: #303030;
+  --border: #3a3a3a;
+  --primary: #FF5252;
+  --primary-hover: #ff6b6b;
+  --text: #f5f5f5;
+  --text-muted: #9a9a9a;
+  --ok: #4ade80;
+  --err: #ef4444;
+  --warn: #f59e0b;
+  --radius: 10px;
+  --transition: 150ms ease;
+  font-family: 'Segoe UI', Raleway, system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background-image: radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* Titlebar (drag region) */
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+  padding: 0 6px 0 14px;
+  background: rgba(0,0,0,0.25);
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.brand-logo {
+  height: 18px;
+  width: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.brand-suffix {
+  color: var(--text-muted);
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  border-left: 1px solid var(--border);
+  padding-left: 10px;
+}
+
+.window-controls {
+  display: flex;
+  gap: 2px;
+  -webkit-app-region: no-drag;
+}
+
+.win-btn {
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  width: 32px;
+  height: 28px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 16px;
+  line-height: 1;
+  transition: background var(--transition), color var(--transition);
+}
+
+.win-btn:hover {
+  background: var(--bg-elev);
+  color: var(--text);
+}
+
+/* Content */
+.content {
+  flex: 1;
+  padding: 14px 16px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.content::-webkit-scrollbar { width: 6px; }
+.content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Status card */
+.status-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  transition: border-color var(--transition);
+}
+
+.status-card.ok { border-color: rgba(74, 222, 128, 0.4); }
+.status-card.err { border-color: rgba(239, 68, 68, 0.4); }
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 0 currentColor;
+  transition: background var(--transition), box-shadow var(--transition);
+}
+
+.status-dot.ok {
+  background: var(--ok);
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+}
+
+.status-dot.err {
+  background: var(--err);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+.status-text { display: flex; flex-direction: column; gap: 2px; }
+.status-title { font-size: 14px; font-weight: 600; }
+.status-sub { font-size: 11px; color: var(--text-muted); font-family: 'Consolas', 'Courier New', monospace; }
+
+/* Cards */
+.card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Toggle switch */
+.switch { position: relative; display: inline-block; width: 38px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; cursor: pointer; inset: 0;
+  background: #4a4a4a; border-radius: 20px; transition: var(--transition);
+}
+.slider::before {
+  content: ""; position: absolute;
+  width: 14px; height: 14px; left: 3px; top: 3px;
+  background: #fff; border-radius: 50%;
+  transition: transform var(--transition);
+}
+.switch input:checked + .slider { background: var(--primary); }
+.switch input:checked + .slider::before { transform: translateX(18px); }
+
+/* Probe list */
+.probe-list {
+  list-style: none;
+  margin-top: 10px;
+  max-height: 180px;
+  overflow-y: auto;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.probe-list::-webkit-scrollbar { width: 4px; }
+.probe-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.probe-list li {
+  padding: 4px 8px;
+  background: var(--bg-elev-2);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.probe-list li.ok { border-left: 2px solid var(--ok); }
+.probe-list li.err { border-left: 2px solid var(--err); }
+
+.probe-list li .proto { color: var(--text-muted); width: 32px; }
+.probe-list li .target { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.probe-list li .latency { color: var(--text-muted); font-size: 10px; }
+
+.probe-empty {
+  border-left: 2px solid var(--border) !important;
+  color: var(--text-muted);
+  text-align: center;
+  justify-content: center !important;
+  font-style: italic;
+}
+
+.link-btn {
+  background: none;
+  border: 0;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+.link-btn:hover { color: var(--primary); }
+
+/* Primary button */
+.primary-btn {
+  margin-top: auto;
+  background: var(--primary);
+  color: #fff;
+  border: 0;
+  border-radius: var(--radius);
+  padding: 11px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+}
+
+.primary-btn:hover { background: var(--primary-hover); }
+.primary-btn:active { transform: scale(0.98); }
+
+.footer-version {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: 'Consolas', monospace;
+}

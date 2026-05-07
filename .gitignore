@@ -1,0 +1,10 @@
+node_modules/
+src-tauri/target/
+src-tauri/Cargo.lock
+src-tauri/icons/icon-source.png
+src-tauri/icons/android/
+genicon.mjs
+*.log
+.DS_Store
+.vscode
+.idea

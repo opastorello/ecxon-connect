@@ -1,0 +1,46 @@
+[package]
+name = "ecxon-connect"
+version = "1.0.0"
+description = "Ecxon Connect — agente local para diagnóstico de rede"
+authors = ["Ecxon Datacenter LTDA"]
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+name = "ecxon_connect_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.1", features = ["tray-icon", "image-png"] }
+tauri-plugin-autostart = "2.0"
+tauri-plugin-opener = "2.0"
+tauri-plugin-single-instance = "2.0"
+
+# HTTP server
+axum = "0.7"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time", "sync", "io-util"] }
+tower = { version = "0.5", features = ["limit"] }
+tower-http = { version = "0.6", features = ["cors"] }
+http = "1"
+
+# Serialização
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+# panic = "unwind" (default) preserva stack pra hook de panic logar em arquivo.
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = false  # mantém symbol info pra debug
