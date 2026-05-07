@@ -10,3 +10,6 @@ genicon.mjs
 .idea
 # Build artifacts produzidos por `cargo tauri build` localmente
 _tmp/
+
+# Schemas auto-gerados pelo cargo tauri build (recriados a cada build)
+src-tauri/gen/schemas/
