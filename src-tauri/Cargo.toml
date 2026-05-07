@@ -39,10 +39,10 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 [profile.release]
-# Otimizado pra build rápido em CI (era ~6min com lto=true, agora ~3min).
-# Binário fica ~10% maior (3.5MB vs 3.2MB) e runtime imperceptível pra app desktop.
-codegen-units = 16    # paraleliza compilação (era 1)
-lto = false           # desliga link-time optimization (era true) — maior economia
+# codegen-units > 1 quebra compilação com mix staticlib/cdylib/rlib (Tauri).
+# lto = false dá ~30% de economia no build sem trade-off relevante pra desktop pequeno.
+codegen-units = 1
+lto = false
 opt-level = "s"
 strip = "symbols"
 # panic = "unwind" (default) preserva stack pra hook de panic logar em arquivo.

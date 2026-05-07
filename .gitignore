@@ -8,3 +8,5 @@ genicon.mjs
 .DS_Store
 .vscode
 .idea
+# Build artifacts produzidos por `cargo tauri build` localmente
+_tmp/
