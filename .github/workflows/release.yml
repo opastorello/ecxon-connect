@@ -73,14 +73,5 @@ jobs:
           files: |
             artifacts/ecxon-connect.msi
 
-      - name: Submit to VirusTotal
-        if: ${{ env.VT_API_KEY != '' }}
-        env:
-          VT_API_KEY: ${{ secrets.VT_API_KEY }}
-        uses: crazy-max/ghaction-virustotal@v4
-        with:
-          vt_api_key: ${{ secrets.VT_API_KEY }}
-          update_release_body: true
-          request_rate: 4
-          files: |
-            artifacts/ecxon-connect.msi
+# VirusTotal scan está em workflow separado (.github/workflows/virustotal.yml)
+# disparado pelo evento `release.published` — não bloqueia este build.
