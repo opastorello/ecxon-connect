@@ -66,6 +66,33 @@ async function onAutostartChange(e) {
   }
 }
 
+// --- Update check -----------------------------------------------------------
+
+const REPO = "opastorello/ecxon-connect";
+
+async function checkForUpdate(currentVersion) {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const latest = String(data.tag_name || "").replace(/^v/, "");
+    if (!latest || latest === currentVersion) return;
+    const link = $("update-link");
+    link.textContent = `↻ Nova versão v${latest} disponível`;
+    link.hidden = false;
+    link.addEventListener("click", async (e) => {
+      e.preventDefault();
+      try {
+        await invoke("plugin:opener|open_url", { url: `${SITE_URL}/diagnostic` });
+      } catch (err) {
+        console.error("abrir /diagnostic falhou:", err);
+      }
+    });
+  } catch { /* offline ou rate limit — silencioso */ }
+}
+
 // --- Window controls --------------------------------------------------------
 
 function setupWindowControls() {
@@ -78,10 +105,14 @@ function setupWindowControls() {
 
 async function init() {
   // Versão no rodapé
+  let currentVersion = null;
   try {
-    const v = await getVersion();
-    $("footer-version").textContent = "v" + v;
+    currentVersion = await getVersion();
+    $("footer-version").textContent = "v" + currentVersion;
   } catch { /* ignore */ }
+
+  // Detecção de nova versão (não bloqueia init)
+  if (currentVersion) checkForUpdate(currentVersion);
 
   setupWindowControls();
   await refreshStatus();

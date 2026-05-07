@@ -2,7 +2,7 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ecxon Connect</title>
     <link rel="stylesheet" href="style.css" />
@@ -43,6 +43,7 @@
 
       <button id="btn-site" class="primary-btn">Abrir site Ecxon</button>
       <p class="footer-version" id="footer-version">v1.0.0</p>
+      <a href="#" id="update-link" class="update-link" hidden></a>
     </main>
 
     <script type="module" src="main.js"></script>
