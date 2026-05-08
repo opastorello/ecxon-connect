@@ -98,16 +98,14 @@ body {
 
 /* Content */
 .content {
-  flex: 1;
-  padding: 14px 16px 16px;
+  padding: 14px 16px 12px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.content::-webkit-scrollbar { width: 6px; }
-.content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.content::-webkit-scrollbar { width: 0; display: none; }
 
 /* Status card */
 .status-card {

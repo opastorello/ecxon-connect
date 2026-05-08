@@ -82,6 +82,12 @@ async function checkForUpdate(currentVersion) {
     const link = $("update-link");
     link.textContent = `↻ Nova versão v${latest} disponível`;
     link.hidden = false;
+    // Aumenta a janela para caber o link de update
+    try {
+      const win = getCurrentWindow();
+      const size = await win.innerSize();
+      await win.setSize(new window.__TAURI__.dpi.LogicalSize(size.width / window.devicePixelRatio, (size.height / window.devicePixelRatio) + 30));
+    } catch {}
     link.addEventListener("click", async () => {
       try {
         await invoke("plugin:opener|open_url", { url: `${SITE_URL}/diagnostic` });
